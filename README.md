@@ -148,3 +148,8 @@ Docker 测试需显式运行；HumanEval 数据相关用例在未准备数据时
 ## 本地文件与上传边界
 
 `.gitignore` 排除 `.env`、私钥、DOCX 等 Office 文档、`runs/`、`reports/`、`memory/`、数据集、压缩包和缓存。根目录仅提供 `.env.example`。运行会在本机产生状态、轨迹和检查结果，它们不是待发布源码；后续提交前仍应检查暂存列表。
+
+## 开源许可
+
+RepoAgent 原创代码采用 [MIT License](LICENSE)，版权归 `wangzg03` 所有。
+使用、修改或分发时请保留相应版权与许可声明。内置第三方组件继续遵循各自的许可证与版权声明，详见 [第三方说明](THIRD_PARTY_NOTICES.md)。
