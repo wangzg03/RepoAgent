@@ -1,0 +1,18 @@
+{
+  "harnesspro_commit": "8ae622eb4a4923dbb4b515be7ded614f88fd4f38",
+  "recreate_commit": "442c77f2fe3a32a40ae9f4ed5bd96168ef2612f9",
+  "harnesspro_source_url": "https://github.com/pzs19/HarnessPro/blob/8ae622eb4a4923dbb4b515be7ded614f88fd4f38/harnesses/swe-bench-pro/medium/runtime/hook.py",
+  "harnesspro_function_sha256": {
+    "_stage_name": "9f0c146b85223be8f5fe6b64c340b2c25922caffd3c31a7c8ab0b75e1462875b",
+    "_compact_text": "0ecb8f382e64749217b7020a674e68d53c74fe38dd7d9822b65fd3afac7e71f3",
+    "_stage_context": "11209eae259a947411c5b5186e18a65c293723675559b8fbac38d27e79913eb4"
+  },
+  "files": {
+    "app/vendor/harnesspro_functions.py": "16beed6b770ee4f2759569a85767c16290f65dfb99474213ce08f75805f59942",
+    "app/vendor/harnesspro_policy.json": "eba77c535b997381ef3a7a2983b35d36c18032993ae55271d39b660cd7f9bf3d",
+    "app/vendor/recreate_read_trajectory.py": "1a194574cee828f6fb95d041c0575d5fada975ba6a0855c38e0c93dc115c1ec0",
+    "app/vendor/recreate_scaffold.py": "ac91a9793cef7959c4a970b4e39734809640fe294fc7d0cff5050e82c14afb02",
+    "app/vendor/LICENSE_HARNESSPRO": "cbf23d958f41aa6fea25d36ba89cefb09870e0207e8ac574f32a6fd99c7b11c7",
+    "app/vendor/LICENSE_RECREATE": "68f17f6dd055a7e46ab0a731593993fadff7678df6398e775c7920e106c53b25"
+  }
+}

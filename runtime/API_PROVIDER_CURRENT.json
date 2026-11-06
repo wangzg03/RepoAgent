@@ -1,0 +1,15 @@
+{
+  "provider": "openai",
+  "service": "DeepSeek Open Platform",
+  "base_url": "https://api.deepseek.com",
+  "default_model": "your-model-name",
+  "api_key_env": "DEEPSEEK_API_KEY",
+  "dotenv_file": ".env",
+  "pricing_usd_per_million": [
+    0.3,
+    1.2,
+    0.006
+  ],
+  "pricing_basis": "Illustrative input/output/cache-hit rates only. Replace with your actual tariff before a paid run.",
+  "reasoning_effort": "high"
+}

@@ -1,0 +1,11 @@
+# Explicit setup only; the runtime never builds or pulls an image.
+# No source files, credentials, documents or benchmark data enter this build.
+FROM python:3.11-slim AS agent
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash git coreutils findutils diffutils \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir pytest
+ENV PYTHONDONTWRITEBYTECODE=1 HOME=/tmp
+WORKDIR /workspace
+FROM agent AS scorer
+RUN python -m pip install --no-cache-dir numpy tqdm

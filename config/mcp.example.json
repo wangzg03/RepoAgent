@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "project_tools": {
+      "command": "python",
+      "args": ["-u", "/workspace/tools/mcp_server.py"],
+      "trusted_read_only_tools": ["lookup_symbol"]
+    }
+  },
+  "note": "Explicit opt-in. The executable and server file must exist in the Docker image/workspace. Never forward provider credentials."
+}

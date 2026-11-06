@@ -1,0 +1,11 @@
+{
+  "provider": "ollama",
+  "service": "Local Ollama",
+  "base_url": "http://127.0.0.1:11434/v1",
+  "default_model": "qwen3.5:4b",
+  "api_key_env": "OLLAMA_API_KEY",
+  "pricing_usd_per_million": [0, 0],
+  "context_tokens": 16384,
+  "reasoning_effort": "none",
+  "note": "Use an installed model without inherited system/history and with matching num_ctx. No automatic download."
+}

@@ -1,0 +1,996 @@
+[
+  {
+    "name": "bash",
+    "description": "Execute a bash command",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "description": "The bash command to execute"
+        }
+      },
+      "required": [
+        "command"
+      ]
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "execution",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "read_file",
+    "description": "Read a bounded UTF-8 source window and its SHA256. Follow next_offset/next_column to continue. Content contains exact text without added line numbers.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Workspace-relative POSIX file path, e.g. src/module.py."
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        }
+      },
+      "required": [
+        "file_path"
+      ],
+      "additionalProperties": false
+    },
+    "read_only": true,
+    "concurrency_safe": true,
+    "category": "filesystem",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": true,
+      "concurrency_safe": true,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "edit_file",
+    "description": "Modify existing code with one exact unique old_string -> new_string replacement. Use a small unique source anchor. Returns the actual diff and hashes. Ambiguous/stale matches do not write; correct the anchor using read_file.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Workspace-relative POSIX file path, e.g. src/module.py."
+        },
+        "old_string": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 32768
+        },
+        "new_string": {
+          "type": "string",
+          "maxLength": 65536
+        },
+        "expected_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "description": "Optional current file SHA256 returned by read_file; required to overwrite with write_file."
+        }
+      },
+      "required": [
+        "file_path",
+        "old_string",
+        "new_string"
+      ],
+      "additionalProperties": false
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "filesystem",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "write_file",
+    "description": "Create a UTF-8 file and missing parent directories. Overwriting an existing file requires its current expected_sha256 from read_file. Prefer edit_file for a small code change. Returns actual hashes and a bounded diff.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Workspace-relative POSIX file path, e.g. src/module.py."
+        },
+        "content": {
+          "type": "string",
+          "maxLength": 65536
+        },
+        "expected_sha256": {
+          "type": "string",
+          "minLength": 64,
+          "maxLength": 64,
+          "description": "Optional current file SHA256 returned by read_file; required to overwrite with write_file."
+        }
+      },
+      "required": [
+        "file_path",
+        "content"
+      ],
+      "additionalProperties": false
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "filesystem",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "scratchpad",
+    "description": "Persist hypotheses and next experiments. write REQUIRES key and value, e.g. action=write,key=hypothesis,value=your note. merge requires an object; without key it updates top-level notes. read may omit key to recover all notes. delete requires key.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "read",
+            "write",
+            "merge",
+            "delete"
+          ]
+        },
+        "key": {
+          "type": "string",
+          "maxLength": 120,
+          "description": "Required and nonempty for write/delete. Optional for read/merge."
+        },
+        "value": {
+          "description": "For merge, an object such as {hypothesis:...,next_experiment:...}; use write for plain text."
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 4000
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "memory",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "todo_write",
+    "description": "Record complete intent/requirements, constraints, a bounded plan and repair reflection in one call. Check coverage against real current-workspace receipts. Done is not acceptance.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "read",
+            "write",
+            "check"
+          ]
+        },
+        "intent": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "implement",
+                "fix",
+                "refactor",
+                "test",
+                "explain",
+                "locate",
+                "review"
+              ]
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 800
+            },
+            "requirements": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 12,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "behavior": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 600
+                  }
+                },
+                "required": [
+                  "id",
+                  "behavior"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "constraints": {
+              "type": "array",
+              "maxItems": 12,
+              "items": {
+                "type": "string",
+                "maxLength": 300
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "summary",
+            "requirements"
+          ],
+          "additionalProperties": false
+        },
+        "reflection": {
+          "type": "object",
+          "properties": {
+            "failed_approach": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 600
+            },
+            "hypothesis": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 600
+            },
+            "next_action": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 600
+            }
+          },
+          "required": [
+            "failed_approach",
+            "hypothesis",
+            "next_action"
+          ],
+          "additionalProperties": false
+        },
+        "request_offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tasks": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              },
+              "content": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 600
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "in_progress",
+                  "done",
+                  "blocked"
+                ]
+              },
+              "dependencies": {
+                "type": "array",
+                "maxItems": 12,
+                "items": {
+                  "type": "string"
+                }
+              },
+              "owner": {
+                "type": "string",
+                "maxLength": 40
+              },
+              "requirements": {
+                "type": "array",
+                "maxItems": 12,
+                "items": {
+                  "type": "string",
+                  "maxLength": 40
+                }
+              },
+              "evidence": {
+                "type": "array",
+                "maxItems": 8,
+                "items": {
+                  "type": "string",
+                  "maxLength": 100
+                }
+              }
+            },
+            "required": [
+              "content",
+              "status"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "expected_revision": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "orchestration",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "memory",
+    "description": "Project-scoped long-term facts with local vector/BM25/keyword hybrid search. No automatic learning. Benchmark tasks cannot read/write cross-task memory. Use scratchpad for current hypotheses.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "search",
+            "save",
+            "read",
+            "forget",
+            "status",
+            "reindex"
+          ]
+        },
+        "query": {
+          "type": "string",
+          "maxLength": 1000
+        },
+        "text": {
+          "type": "string",
+          "maxLength": 4000
+        },
+        "key": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "identity": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 16
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "memory",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "trajectory_read",
+    "description": "Read this task's turn index/context or original action output, with offset/limit paging. No hidden judge or other session access.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "index",
+            "context",
+            "output",
+            "request"
+          ]
+        },
+        "action_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "turn": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "window": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "offset": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 4000
+        }
+      },
+      "additionalProperties": false
+    },
+    "read_only": true,
+    "concurrency_safe": true,
+    "category": "external",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": true,
+      "concurrency_safe": true,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "subagent",
+    "description": "Delegate at most two nonrecursive children with isolated context and shared budgets. Request read/test or operator-authorized scoped write capabilities; review reports and explicitly integrate isolated edits, then test main.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "spawn",
+            "review",
+            "status",
+            "integrate"
+          ]
+        },
+        "jobs": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 32
+              },
+              "task": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2400
+              },
+              "capabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "read",
+                    "test",
+                    "write"
+                  ]
+                }
+              },
+              "write_scope": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "maxLength": 512
+                }
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "source",
+                  "tests",
+                  "trajectory_review"
+                ]
+              },
+              "requirements": {
+                "type": "array",
+                "maxItems": 12,
+                "items": {
+                  "type": "string",
+                  "maxLength": 40
+                }
+              },
+              "expected_output": {
+                "type": "string",
+                "maxLength": 600
+              },
+              "dependencies": {
+                "type": "array",
+                "maxItems": 2,
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "id",
+              "task"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "identity": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "disposition": {
+          "type": "string",
+          "enum": [
+            "used",
+            "rejected"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "maxLength": 1200
+        }
+      },
+      "required": [
+        "action"
+      ],
+      "additionalProperties": false
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "external",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "code_search",
+    "description": "Find paths, Python AST definitions, literal references or syntactic call sites. Returns ranked source windows, score components and current SHA256. Use read_file for the full relevant function; calls are not a resolved runtime call graph.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "path",
+            "definition",
+            "references",
+            "calls"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 30
+        },
+        "path_prefix": {
+          "type": "string",
+          "maxLength": 512
+        }
+      },
+      "required": [
+        "query"
+      ],
+      "additionalProperties": false
+    },
+    "read_only": true,
+    "concurrency_safe": true,
+    "category": "external",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": true,
+      "concurrency_safe": true,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "task_contract",
+    "description": "Convert the complete user request to one task JSON before editing: requirements, inferred metrics, executable public checks and bounded dependency plan. Workspace permissions come from the operator and cannot be expanded. Metrics are proposals, not test results. Call once with the complete object.",
+    "parameters": {
+      "$defs": {
+        "Check": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maxLength": 40,
+              "minLength": 1,
+              "title": "Id",
+              "type": "string"
+            },
+            "command": {
+              "maxLength": 2000,
+              "minLength": 1,
+              "title": "Command",
+              "type": "string"
+            },
+            "seconds": {
+              "default": 120,
+              "maximum": 180,
+              "minimum": 1,
+              "title": "Seconds",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "id",
+            "command"
+          ],
+          "title": "Check",
+          "type": "object"
+        },
+        "Metric": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maxLength": 40,
+              "minLength": 1,
+              "title": "Id",
+              "type": "string"
+            },
+            "name": {
+              "maxLength": 100,
+              "minLength": 1,
+              "title": "Name",
+              "type": "string"
+            },
+            "kind": {
+              "enum": [
+                "behavior",
+                "regression",
+                "performance",
+                "coverage",
+                "artifact"
+              ],
+              "title": "Kind",
+              "type": "string"
+            },
+            "target": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Target",
+              "type": "string"
+            },
+            "requirement_ids": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "minItems": 1,
+              "title": "Requirement Ids",
+              "type": "array"
+            },
+            "check_ids": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 8,
+              "title": "Check Ids",
+              "type": "array"
+            },
+            "source": {
+              "default": "inferred",
+              "enum": [
+                "user",
+                "inferred"
+              ],
+              "title": "Source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "kind",
+            "target",
+            "requirement_ids"
+          ],
+          "title": "Metric",
+          "type": "object"
+        },
+        "PlanStep": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maxLength": 40,
+              "minLength": 1,
+              "title": "Id",
+              "type": "string"
+            },
+            "content": {
+              "maxLength": 500,
+              "minLength": 1,
+              "title": "Content",
+              "type": "string"
+            },
+            "owner": {
+              "default": "main",
+              "enum": [
+                "main",
+                "child_1",
+                "child_2"
+              ],
+              "title": "Owner",
+              "type": "string"
+            },
+            "dependencies": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "title": "Dependencies",
+              "type": "array"
+            },
+            "requirements": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "minItems": 1,
+              "title": "Requirements",
+              "type": "array"
+            },
+            "write_scope": {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 12,
+              "title": "Write Scope",
+              "type": "array"
+            },
+            "evidence": {
+              "maxLength": 300,
+              "minLength": 1,
+              "title": "Evidence",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "content",
+            "requirements",
+            "evidence"
+          ],
+          "title": "PlanStep",
+          "type": "object"
+        },
+        "Requirement": {
+          "additionalProperties": false,
+          "properties": {
+            "id": {
+              "maxLength": 40,
+              "minLength": 1,
+              "title": "Id",
+              "type": "string"
+            },
+            "behavior": {
+              "maxLength": 600,
+              "minLength": 1,
+              "title": "Behavior",
+              "type": "string"
+            },
+            "source": {
+              "default": "user",
+              "enum": [
+                "user",
+                "inferred"
+              ],
+              "title": "Source",
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "behavior"
+          ],
+          "title": "Requirement",
+          "type": "object"
+        }
+      },
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "implement",
+            "fix",
+            "refactor",
+            "test",
+            "explain",
+            "locate",
+            "review"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "summary": {
+          "maxLength": 800,
+          "minLength": 1,
+          "title": "Summary",
+          "type": "string"
+        },
+        "requirements": {
+          "items": {
+            "$ref": "#/$defs/Requirement"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Requirements",
+          "type": "array"
+        },
+        "constraints": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Constraints",
+          "type": "array"
+        },
+        "metrics": {
+          "items": {
+            "$ref": "#/$defs/Metric"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Metrics",
+          "type": "array"
+        },
+        "checks": {
+          "items": {
+            "$ref": "#/$defs/Check"
+          },
+          "maxItems": 8,
+          "title": "Checks",
+          "type": "array"
+        },
+        "plan": {
+          "items": {
+            "$ref": "#/$defs/PlanStep"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Plan",
+          "type": "array"
+        }
+      },
+      "required": [
+        "kind",
+        "summary",
+        "requirements",
+        "metrics",
+        "plan"
+      ],
+      "title": "Intent",
+      "type": "object"
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "external",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  },
+  {
+    "name": "run_tests",
+    "description": "Run an actual test/assertion command in a disposable Docker workspace copy. Returns command, returncode and source snapshot hash. Does not modify main. Use for scoped tasks, regression and public checks; failed checks require repair.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8000
+        },
+        "seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 180
+        }
+      },
+      "required": [
+        "command"
+      ],
+      "additionalProperties": false
+    },
+    "read_only": false,
+    "concurrency_safe": false,
+    "category": "external",
+    "output": "text; structured JSON where documented",
+    "execution": {
+      "read_only": false,
+      "concurrency_safe": false,
+      "journaled": true,
+      "cancellation": "task_deadline",
+      "output": "bounded; captured receipts are recoverable; transport caps may truncate"
+    }
+  }
+]

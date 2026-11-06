@@ -1,0 +1,275 @@
+{
+  "$defs": {
+    "Check": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "command": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Command",
+          "type": "string"
+        },
+        "seconds": {
+          "default": 120,
+          "maximum": 180,
+          "minimum": 1,
+          "title": "Seconds",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "id",
+        "command"
+      ],
+      "title": "Check",
+      "type": "object"
+    },
+    "Metric": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "behavior",
+            "regression",
+            "performance",
+            "coverage",
+            "artifact"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "target": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Target",
+          "type": "string"
+        },
+        "requirement_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Requirement Ids",
+          "type": "array"
+        },
+        "check_ids": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Check Ids",
+          "type": "array"
+        },
+        "source": {
+          "default": "inferred",
+          "enum": [
+            "user",
+            "inferred"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "target",
+        "requirement_ids"
+      ],
+      "title": "Metric",
+      "type": "object"
+    },
+    "PlanStep": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "content": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Content",
+          "type": "string"
+        },
+        "owner": {
+          "default": "main",
+          "enum": [
+            "main",
+            "child_1",
+            "child_2"
+          ],
+          "title": "Owner",
+          "type": "string"
+        },
+        "dependencies": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Dependencies",
+          "type": "array"
+        },
+        "requirements": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "minItems": 1,
+          "title": "Requirements",
+          "type": "array"
+        },
+        "write_scope": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 12,
+          "title": "Write Scope",
+          "type": "array"
+        },
+        "evidence": {
+          "maxLength": 300,
+          "minLength": 1,
+          "title": "Evidence",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "content",
+        "requirements",
+        "evidence"
+      ],
+      "title": "PlanStep",
+      "type": "object"
+    },
+    "Requirement": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 40,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "behavior": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Behavior",
+          "type": "string"
+        },
+        "source": {
+          "default": "user",
+          "enum": [
+            "user",
+            "inferred"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "behavior"
+      ],
+      "title": "Requirement",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "kind": {
+      "enum": [
+        "implement",
+        "fix",
+        "refactor",
+        "test",
+        "explain",
+        "locate",
+        "review"
+      ],
+      "title": "Kind",
+      "type": "string"
+    },
+    "summary": {
+      "maxLength": 800,
+      "minLength": 1,
+      "title": "Summary",
+      "type": "string"
+    },
+    "requirements": {
+      "items": {
+        "$ref": "#/$defs/Requirement"
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "title": "Requirements",
+      "type": "array"
+    },
+    "constraints": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 12,
+      "title": "Constraints",
+      "type": "array"
+    },
+    "metrics": {
+      "items": {
+        "$ref": "#/$defs/Metric"
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "title": "Metrics",
+      "type": "array"
+    },
+    "checks": {
+      "items": {
+        "$ref": "#/$defs/Check"
+      },
+      "maxItems": 8,
+      "title": "Checks",
+      "type": "array"
+    },
+    "plan": {
+      "items": {
+        "$ref": "#/$defs/PlanStep"
+      },
+      "maxItems": 12,
+      "minItems": 1,
+      "title": "Plan",
+      "type": "array"
+    }
+  },
+  "required": [
+    "kind",
+    "summary",
+    "requirements",
+    "metrics",
+    "plan"
+  ],
+  "title": "Intent",
+  "type": "object"
+}

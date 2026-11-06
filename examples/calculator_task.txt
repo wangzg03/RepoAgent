@@ -1,0 +1,10 @@
+从零创建一个纯 Python 命令行计算器，不使用第三方依赖。
+
+交付 calculator.py、README.md 和 tests/ 下的 unittest 测试。
+calculator.py 提供 calculate(operation, a, b) 函数，operation 支持 add、subtract、multiply、divide。
+支持负数和小数；除数为零抛出 ValueError，错误信息明确提到除零；不支持的 operation 抛出 ValueError。
+命令行用法为 python calculator.py <operation> <a> <b>，成功时在 stdout 输出一个数值且退出码为 0。
+--help 正常显示用法并退出；除零和非法操作通过 stderr 给出错误并以非零码退出。
+编写测试覆盖四则运算、负数、小数、除零和非法操作，并实际运行，修复失败后再提交。
+README 给出运行示例和测试命令。
+请用 todo_write 保存需求及 3～6 个任务，执行过程中维护状态。不要初始化 Git、安装依赖或联网。

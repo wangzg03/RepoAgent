@@ -1,0 +1,67 @@
+{
+  "kind": "implement",
+  "summary": "创建标准库命令行计算器",
+  "requirements": [
+    {
+      "id": "R1",
+      "behavior": "四则运算、负数、小数、除零报错及 --help",
+      "source": "user"
+    }
+  ],
+  "constraints": [
+    "仅 Python 标准库"
+  ],
+  "metrics": [
+    {
+      "id": "M1",
+      "name": "公开行为测试",
+      "kind": "behavior",
+      "target": "已定义断言全部通过",
+      "requirement_ids": [
+        "R1"
+      ],
+      "check_ids": [
+        "C1"
+      ],
+      "source": "inferred"
+    }
+  ],
+  "checks": [
+    {
+      "id": "C1",
+      "command": "python -m unittest discover -s tests -v",
+      "seconds": 120
+    }
+  ],
+  "plan": [
+    {
+      "id": "T1",
+      "content": "实现计算器与 README",
+      "owner": "main",
+      "dependencies": [],
+      "requirements": [
+        "R1"
+      ],
+      "write_scope": [
+        "calculator.py",
+        "README.md"
+      ],
+      "evidence": "存在可运行入口与说明"
+    },
+    {
+      "id": "T2",
+      "content": "补充并运行行为测试，修复后提交",
+      "owner": "main",
+      "dependencies": [
+        "T1"
+      ],
+      "requirements": [
+        "R1"
+      ],
+      "write_scope": [
+        "tests"
+      ],
+      "evidence": "C1 成功且当前产物独立验收通过"
+    }
+  ]
+}
